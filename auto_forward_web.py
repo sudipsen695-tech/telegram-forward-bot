@@ -11,7 +11,7 @@ api_hash = '9b9b9cd5c632a01e00d6b27857eb2c1f'
 source_channels = [
     'https://t.me/EasyForexPips',
     'https://t.me/+0UaKPqnhXbg2Yjhl',
-    'https://t.me/+R08_OW35lkjqvwWP'
+    'https://t.me/+HBAsg_1cXoYzYjFl'
 ]
 target_channel = 'https://t.me/+WB5EH_NEcKMrOxmL'
 
