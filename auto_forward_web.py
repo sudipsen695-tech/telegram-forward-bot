@@ -13,6 +13,7 @@ api_hash = '9b9b9cd5c632a01e00d6b27857eb2c1f'
 source_channels = [
     'EasyForexPips',       # public channel username
     '+0UaKPqnhXbg2Yjhl',  # private channel invite hash
+    '+HBAsg_1cXoYzYjFl'
 ]
 target_channel = '+WB5EH_NEcKMrOxmL'  # your target channel invite hash
 
