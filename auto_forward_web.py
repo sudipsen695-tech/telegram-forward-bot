@@ -8,16 +8,20 @@ from telethon import TelegramClient, events
 api_id = 38317834
 api_hash = '9b9b9cd5c632a01e00d6b27857eb2c1f'
 
+# Source and target channels
+# Use usernames if possible. For private channels, the account must already be joined
 source_channels = [
-    'https://t.me/EasyForexPips',
-    'https://t.me/+0UaKPqnhXbg2Yjhl',
-    'https://t.me/+HBAsg_1cXoYzYjFl'
+    'EasyForexPips',       # public channel username
+    '+0UaKPqnhXbg2Yjhl',  # private channel invite hash
 ]
-target_channel = 'https://t.me/+WB5EH_NEcKMrOxmL'
+target_channel = '+WB5EH_NEcKMrOxmL'  # your target channel invite hash
 
-client = TelegramClient('auto_forward_session', api_id, api_hash)
+# Session file
+session_file = 'auto_forward_session'
 
-# ================= LOGGING CONFIG =================
+client = TelegramClient(session_file, api_id, api_hash)
+
+# ================= LOGGING =================
 logging.basicConfig(
     filename='bot.log',
     level=logging.INFO,
@@ -31,7 +35,7 @@ app = Flask(__name__)
 def home():
     return "Bot is running!"
 
-# ================= TELEGRAM BOT FUNCTIONS =================
+# ================= TELEGRAM BOT =================
 async def get_chat_id(link):
     try:
         entity = await client.get_entity(link)
@@ -42,7 +46,12 @@ async def get_chat_id(link):
         return None
 
 async def main():
-    logging.info("🔍 Getting channel IDs...")
+    # Start the client session (will prompt for login on first run)
+    await client.start()
+    logging.info("✅ Client started")
+
+    # Get chat IDs
+    logging.info("🔍 Resolving channel IDs...")
     src_ids = []
     for link in source_channels:
         chat_id = await get_chat_id(link)
@@ -50,20 +59,21 @@ async def main():
             src_ids.append(chat_id)
 
     dest_id = await get_chat_id(target_channel)
+
     logging.info("🎯 Listening to channels...")
 
     @client.on(events.NewMessage(chats=src_ids))
     async def handler(event):
         try:
             await client.forward_messages(dest_id, event.message)
-            logging.info(f"➡️ Forwarded from {event.chat.title}")
+            logging.info(f"➡️ Forwarded from {event.chat.title}: {event.message.id}")
         except Exception as e:
             logging.error(f"⚠️ Error forwarding: {e}")
 
-    logging.info("✅ Ready! Waiting for new messages...")
+    logging.info("✅ Bot ready! Waiting for messages...")
     await client.run_until_disconnected()
 
-# ================= BOT START WITH AUTO-RECONNECT =================
+# ================= AUTO-RECONNECT LOOP =================
 def start_bot():
     while True:
         try:
@@ -74,10 +84,10 @@ def start_bot():
             logging.info("⏳ Restarting in 5 seconds...")
             time.sleep(5)
 
-# Run the bot in a separate thread
+# Start bot in a separate thread
 threading.Thread(target=start_bot).start()
 
-# ================= RUN FLASK SERVER (Render PORT) =================
+# ================= RUN FLASK SERVER =================
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000))
